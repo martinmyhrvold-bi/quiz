@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Arnes bursdagsquiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+:root{--bg:#240b10;--bg2:#2f1016;--card:#3d151c;--line:#5a2530;--ink:#fff4dc;--mute:#e0bfae;--red:#e63946;--cream:#fff4dc;--gold:#ffc93c;--snow:#eef6fb;--snow2:#c9dbe8;
+--o0:#e63946;--o1:#2f7fd8;--o2:#e0a100;--o3:#22a06b}
+*{box-sizing:border-box;min-width:0}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 Nunito,system-ui,sans-serif;overflow-x:clip;-webkit-tap-highlight-color:transparent}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;border-radius:14px;min-height:48px;padding:0 18px;font-weight:800;background:var(--card);color:var(--ink)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+button:disabled{opacity:.4;cursor:default}
+.gold{background:var(--gold);color:#2a1300}
+h1,h2,.bung{font-family:Bungee,Impact,sans-serif;font-weight:400;line-height:1.08;margin:0;text-wrap:balance}
+.view{display:none}.view.on{display:block}
+.awning{height:52px;flex:none;background:repeating-linear-gradient(90deg,var(--red) 0 60px,var(--cream) 60px 120px);-webkit-mask:radial-gradient(30px 14px at 30px 38px,#000 98%,transparent) 0 0/60px 100% repeat-x,linear-gradient(#000 0 0) 0 0/100% 38px no-repeat;mask:radial-gradient(30px 14px at 30px 38px,#000 98%,transparent) 0 0/60px 100% repeat-x,linear-gradient(#000 0 0) 0 0/100% 38px no-repeat}
+.bulbs{display:flex;justify-content:space-around;padding:0 2vw;flex:none}
+.bulbs i{width:clamp(10px,1vw,16px);height:clamp(10px,1vw,16px);border-radius:50%;background:var(--gold);box-shadow:0 0 12px 3px rgba(255,201,60,.7);animation:blink 1.6s infinite}
+.bulbs i:nth-child(even){animation-delay:.8s}
+@keyframes blink{50%{opacity:.35;box-shadow:none}}
+.shape{width:1em;height:1em;flex:none;fill:#fff}
+/* landing */
+#land .in{max-width:760px;margin:0 auto;padding:clamp(24px,5vw,56px) 18px}
+#land h1{font-size:clamp(36px,7vw,60px);color:var(--gold)}
+#land p{color:var(--mute)}
+.pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px;margin-top:24px}
+.pick button{min-height:120px;text-align:left;padding:20px;border:2px solid var(--line);border-radius:20px;display:block}
+.pick b{display:block;font-family:Bungee,sans-serif;font-weight:400;font-size:24px;color:var(--cream)}
+.pick span{color:var(--mute);font-weight:700}
+/* HOST / TV */
+#host.on{display:flex;flex-direction:column;height:100vh;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,#4a1520 0%,var(--bg) 65%)}
+.thead{display:flex;align-items:center;justify-content:space-between;gap:2vw;padding:1.2vh 3vw .8vh;flex:none}
+.thead h1{font-size:clamp(26px,3.4vw,64px);color:var(--gold);text-shadow:0 4px 0 #7a1d12}
+.chip{font-family:Bungee,sans-serif;font-size:clamp(16px,1.7vw,32px);background:var(--red);color:var(--cream);border-radius:999px;padding:.2em .8em;white-space:nowrap}
+.codechip{font-weight:800;color:var(--mute);font-size:clamp(13px,1.2vw,22px);white-space:nowrap}
+#stage{flex:1;min-height:0;display:flex;flex-direction:column;padding:0 3vw 56px}
+.tools{position:absolute;right:12px;bottom:10px;display:flex;gap:8px;z-index:9;opacity:.35;transition:opacity .3s}
+.tools:hover,.tools:focus-within{opacity:1}
+.tools button{min-height:38px;font-size:14px;padding:0 12px}
+/* lobby */
+.lobby{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:3vw;align-items:center}
+.qrcard{background:var(--cream);color:#2a0e12;border-radius:28px;padding:2.4vh 2vw;text-align:center;box-shadow:0 8px 0 #160609}
+.qrcard .qr svg{width:min(34vh,26vw);height:auto;display:block;margin:0 auto}
+.qrcard h2{font-size:clamp(20px,2.2vw,40px);color:var(--red);margin-bottom:1vh}
+.qrcard .url{font-weight:800;font-size:clamp(13px,1.1vw,20px);word-break:break-all;margin-top:1vh}
+.qrcard .code{font-family:Bungee,sans-serif;font-size:clamp(28px,3.6vw,64px);letter-spacing:.08em}
+.joined h2{font-size:clamp(22px,2.6vw,48px);color:var(--cream);margin-bottom:2vh}
+.plist{display:flex;flex-wrap:wrap;gap:1vh 1vw}
+.pchip{display:inline-flex;align-items:center;gap:.4em;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:.25em .8em .25em .35em;font-weight:900;font-size:clamp(16px,1.9vw,34px)}
+.pchip i{width:1.3em;height:1.3em;border-radius:50%;background:var(--c);flex:none}
+.pchip.off{opacity:.45}
+.pchip.done{border-color:var(--gold)}
+.pchip.done i{box-shadow:0 0 0 3px var(--gold)}
+.startbtn{margin-top:3vh;font-size:clamp(20px,2vw,36px);min-height:clamp(56px,8vh,90px);padding:0 1.4em;border-radius:20px}
+/* question */
+.qbox{flex:1;display:flex;flex-direction:column;gap:1.6vh;min-height:0}
+.qtop{display:flex;align-items:center;gap:1.2vw}
+.year{font-family:Bungee,sans-serif;background:var(--gold);color:#2a1300;border-radius:12px;padding:.1em .5em;font-size:clamp(18px,2vw,38px)}
+.qtext{font-size:clamp(26px,3.6vw,68px);font-weight:900;line-height:1.12;text-wrap:balance}
+.timer{height:clamp(12px,1.6vh,22px);background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden}
+.timer i{display:block;height:100%;background:var(--gold);border-radius:99px;transition:width .25s linear}
+.secs{font-family:Bungee,sans-serif;font-size:clamp(22px,2.6vw,48px);color:var(--gold);min-width:2.2em;text-align:right}
+.opts{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:1.4vh 1.2vw;min-height:0}
+.opt{display:flex;align-items:center;gap:.6em;border-radius:20px;padding:1vh 1.4vw;font-weight:900;font-size:clamp(20px,2.6vw,50px);color:#fff;box-shadow:0 6px 0 rgba(0,0,0,.35);position:relative;transition:opacity .4s,transform .4s;line-height:1.1}
+.opt .shape{font-size:1.2em}
+.opt .cnt{margin-left:auto;font-family:Bungee,sans-serif;font-size:.9em;background:rgba(0,0,0,.25);border-radius:12px;padding:0 .4em;display:none}
+.reveal .opt .cnt{display:block}
+.reveal .opt.no{opacity:.28}
+.reveal .opt.yes{transform:scale(1.02);box-shadow:0 0 0 6px var(--cream),0 0 40px rgba(255,244,220,.6)}
+.o0{background:var(--o0)}.o1{background:var(--o1)}.o2{background:var(--o2)}.o3{background:var(--o3)}
+.answ{display:flex;flex-wrap:wrap;gap:.6vh .6vw;align-items:center}
+.answ .lbl{font-weight:800;color:var(--mute);font-size:clamp(14px,1.4vw,26px);margin-right:.4em}
+.answ .pchip{font-size:clamp(13px,1.3vw,24px)}
+.rightnames{font-weight:900;font-size:clamp(18px,2vw,38px);color:var(--cream)}
+/* race */
+.banner{flex:none;margin-bottom:1vh;text-align:center;font-family:Bungee,sans-serif;font-size:min(clamp(18px,2vw,40px),4vh);color:var(--bg);background:var(--gold);border-radius:14px;padding:.15em .6em}
+#lanes{flex:1;display:flex;flex-direction:column;gap:.7vh;min-height:0;overflow:hidden}
+.lane{flex:1 1 0;max-height:16vh;min-height:0;display:grid;grid-template-columns:clamp(140px,20vw,400px) minmax(0,1fr) clamp(64px,6.5vw,130px);gap:1vw;overflow:hidden}
+.who{display:flex;align-items:center;gap:.5em;font-weight:900;font-size:min(clamp(16px,2vw,40px),3.4vh);overflow:hidden}
+.who .no{flex:none;display:grid;place-items:center;width:1.6em;height:1.6em;border-radius:50%;background:var(--c);color:#1b0a0d;font-family:Bungee,sans-serif;font-size:.7em}
+.who span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track{position:relative;border-radius:clamp(10px,1vw,18px);background:linear-gradient(180deg,var(--snow) 0%,#fff 45%,var(--snow2) 100%);box-shadow:inset 0 -6px 0 rgba(80,120,150,.25),0 4px 0 #160609;overflow:hidden}
+.track::before{content:"";position:absolute;left:0;right:0;top:72%;height:10%;background:linear-gradient(180deg,transparent 0 30%,rgba(110,150,180,.45) 30% 42%,transparent 42% 58%,rgba(110,150,180,.45) 58% 70%,transparent 70%)}
+.track::after{content:"";position:absolute;right:3%;top:0;bottom:0;width:clamp(10px,1.1vw,20px);background:conic-gradient(#111 25%,#fff 0 50%,#111 0 75%,#fff 0) 0 0/50% 12%}
+.skier{position:absolute;bottom:4%;height:92%;aspect-ratio:1;left:0;transition:left 1.6s cubic-bezier(.3,.7,.3,1);z-index:2}
+.skier svg{width:100%;height:100%;overflow:visible}
+.skier .lg1,.skier .lg2,.skier .pl1,.skier .pl2{transform-box:view-box}
+.skier .lg1{transform-origin:38px 44px}.skier .lg2{transform-origin:40px 44px}
+.skier .pl1,.skier .pl2{transform-origin:50px 34px}
+.skier.go .lg1{animation:kick .5s ease-in-out 4 alternate}
+.skier.go .lg2{animation:kick .5s ease-in-out 4 alternate-reverse}
+.skier.go .pl1{animation:pole .5s ease-in-out 4 alternate}
+.skier.go .pl2{animation:pole .5s ease-in-out 4 alternate-reverse}
+.skier.go .bodyg{animation:bob .25s ease-in-out 8 alternate}
+@keyframes kick{from{transform:rotate(-16deg)}to{transform:rotate(16deg)}}
+@keyframes pole{from{transform:rotate(-22deg)}to{transform:rotate(14deg)}}
+@keyframes bob{to{transform:translateY(-2px)}}
+.crown,.flag{display:none}
+.lead .crown{display:inline}.done .flag{display:inline}
+.sc{display:grid;place-items:center;font-family:Bungee,sans-serif;font-size:min(clamp(24px,3.2vw,64px),5vh);line-height:1;color:var(--cream);background:var(--card);border-radius:clamp(10px,1vw,18px);border:2px solid var(--line);font-variant-numeric:tabular-nums}
+.lead .sc{border-color:var(--gold);color:var(--gold)}
+.pop{position:absolute;bottom:86%;font-family:Bungee,sans-serif;font-size:min(clamp(20px,2.4vw,48px),4.5vh);color:var(--red);text-shadow:0 2px 0 #fff;pointer-events:none;animation:pop 2.2s ease-out forwards;z-index:3;white-space:nowrap}
+@keyframes pop{0%{opacity:0;transform:translateY(30%) scale(.6)}15%{opacity:1;transform:translateY(-10%) scale(1.15)}75%{opacity:1}100%{opacity:0;transform:translateY(-60%)}}
+.endwin{text-align:center;margin:1vh 0 2vh}
+.endwin h2{font-size:clamp(30px,4.4vw,88px);color:var(--gold);text-shadow:0 4px 0 #7a1d12}
+.endwin p{font-weight:800;font-size:clamp(16px,1.8vw,34px);color:var(--mute);margin:.5vh 0 0}
+.msg{flex:1;display:grid;place-items:center;text-align:center;font-weight:800;font-size:clamp(20px,2.4vw,44px);color:var(--mute)}
+/* PLAYER / PHONE */
+#play.on{display:flex;flex-direction:column;min-height:100dvh;min-height:100vh}
+#play .awning{height:40px}
+.pbody{flex:1;display:flex;flex-direction:column;max-width:520px;width:100%;margin:0 auto;padding:14px 16px calc(18px + env(safe-area-inset-bottom))}
+.ptop{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;font-weight:800;color:var(--mute);font-size:14px}
+.ptop .me{display:flex;align-items:center;gap:8px;color:var(--cream);font-size:16px}
+.ptop .me i{width:18px;height:18px;border-radius:50%;background:var(--c)}
+.pcard{background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:12px}
+.pcard h2{font-size:26px;color:var(--gold);margin-bottom:6px}
+label.l{display:block;font-size:13px;color:var(--mute);font-weight:800;margin:10px 0 6px}
+input[type=text]{width:100%;min-height:48px;font-size:18px;background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:8px 12px}
+.names{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.names button{background:var(--card);border:2px solid var(--line)}
+.names button.sel{border-color:var(--gold);background:#5a3a10}
+.names button.taken{opacity:.35}
+.wide{width:100%;margin-top:14px;min-height:56px;font-size:20px}
+.perr{color:#ffb4a8;font-weight:800;margin-top:10px;min-height:1.2em}
+.center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px}
+.center .big{font-family:Bungee,sans-serif;font-size:clamp(30px,9vw,46px);line-height:1.05}
+.center p{color:var(--mute);font-weight:700;margin:0;max-width:30ch}
+.bigsk{width:120px;height:120px}
+.pq{font-weight:900;font-size:19px;line-height:1.25;margin-bottom:10px}
+.pmeta{display:flex;justify-content:space-between;font-weight:800;color:var(--mute);margin-bottom:8px}
+.pmeta b{font-family:Bungee,sans-serif;font-weight:400;color:var(--gold);font-size:22px}
+.abtns{flex:1;display:grid;grid-template-rows:repeat(4,minmax(64px,1fr));gap:10px}
+.abtns button{display:flex;align-items:center;gap:14px;text-align:left;color:#fff;font-size:20px;border-radius:18px;box-shadow:0 5px 0 rgba(0,0,0,.35);padding:10px 16px;line-height:1.15}
+.abtns button .shape{font-size:30px}
+.abtns button:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
+.res{border-radius:24px;padding:28px 18px;width:100%}
+.res.ok{background:#1f7a4f}.res.bad{background:#8a1f2a}.res.none{background:var(--card)}
+.conn{font-size:13px;font-weight:800;color:var(--mute);text-align:center;margin-top:8px}
+.conn.bad{color:#ffb4a8}
+@media (max-width:760px){.lobby{grid-template-columns:1fr}.lane{grid-template-columns:minmax(0,1fr) 56px;grid-template-rows:auto 1fr;max-height:none;min-height:80px}.who{grid-column:1/-1}.opts{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.skier{transition:none}.skier.go *{animation:none!important}.bulbs i{animation:none}.pop{animation-duration:.01s}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="sh0" viewBox="0 0 24 24"><path d="M12 3 22 21H2z"/></symbol>
+    <symbol id="sh1" viewBox="0 0 24 24"><path d="M12 1.5 22.5 12 12 22.5 1.5 12z"/></symbol>
+    <symbol id="sh2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></symbol>
+    <symbol id="sh3" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></symbol>
+    <symbol id="sk" viewBox="0 0 80 80">
+      <g class="pl1"><line x1="50" y1="34" x2="36" y2="74" stroke="#5b3a29" stroke-width="2.5" stroke-linecap="round"/></g>
+      <g class="lg1"><path d="M38 44 L30 70" stroke="#26324a" stroke-width="6" stroke-linecap="round"/><path d="M14 72 H46" stroke="#3a2418" stroke-width="3.5" stroke-linecap="round"/></g>
+      <g class="lg2"><path d="M40 44 L50 70" stroke="#2f3d5c" stroke-width="6" stroke-linecap="round"/><path d="M34 72 H68 q6 0 8 -5" fill="none" stroke="#3a2418" stroke-width="3.5" stroke-linecap="round"/></g>
+      <g class="bodyg">
+        <path d="M36 46 C33 36 38 26 46 25 C52 25 54 32 52 40 C50 46 44 48 36 46Z" fill="currentColor"/>
+        <path d="M37 41 C42 42 48 41 52 38" stroke="#fff" stroke-width="2.5" fill="none" opacity=".8"/>
+        <circle cx="50" cy="18" r="7" fill="#f3c9a4"/>
+        <path d="M43 16 C43 8 57 7 57 15 Z" fill="currentColor"/>
+        <rect x="42" y="14" width="16" height="3.5" rx="1.5" fill="#fff"/>
+        <circle cx="44" cy="8" r="3.4" fill="#fff"/>
+        <circle cx="53" cy="19" r="1.1" fill="#26324a"/>
+        <path d="M46 30 L58 34" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+        <path class="crown" d="M42 4 l3 -7 4 5 4 -5 3 7z" fill="#ffc93c" stroke="#7a4a00" stroke-width=".8" transform="translate(0,-3)"/>
+      </g>
+      <g class="pl2"><line x1="52" y1="34" x2="64" y2="74" stroke="#5b3a29" stroke-width="2.5" stroke-linecap="round"/><circle cx="58" cy="34" r="3" fill="currentColor"/></g>
+      <g class="flag"><line x1="66" y1="40" x2="66" y2="6" stroke="#3a2418" stroke-width="2"/><path d="M66 6 h14 v10 h-14z" fill="#e63946"/></g>
+    </symbol>
+  </defs>
+</svg>
+
+<section id="land" class="view">
+  <div class="awning"></div>
+  <div class="in">
+    <h1>Arnes bursdagsquiz</h1>
+    <p>Et skirenn på tivoli: svar riktig på mobilen, så går skiløperen din nærmere mål på TV-en.</p>
+    <div class="pick">
+      <button type="button" id="goHost"><b>Start på TV-en</b><span>Viser QR-kode, spørsmål og skirennet</span></button>
+      <button type="button" id="goPlay"><b>Bli med</b><span>Spill fra mobilen</span></button>
+    </div>
+  </div>
+</section>
+
+<section id="host" class="view">
+  <div class="awning"></div>
+  <div class="bulbs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="thead"><h1>Arnes bursdagsquiz</h1><span class="codechip" id="hCode"></span><span class="chip" id="hChip">Venter på spillere</span></div>
+  <div id="stage"></div>
+  <div class="tools"><button type="button" id="tNext">Neste</button><button type="button" id="tPause">Pause</button><button type="button" id="tFs">Fullskjerm</button><button type="button" id="tReset">Ny quiz</button></div>
+</section>
+
+<section id="play" class="view">
+  <div class="awning"></div>
+  <div class="pbody" id="pbody"></div>
+</section>
+
+<script>
+{
+const QD='=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';
+const QS=JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(QD.split('').reverse().join('')),c=>c.charCodeAt(0))));
+const NAMES=['Arne','Lotte','Merete','Martin','Joakim','Anne','Elise','Henrik','Nina','Eirik'];
+const PAL=['#e63946','#ffc93c','#2f8fd8','#8e5bd6','#2fb57a','#ff7fb0','#ff8a3d','#1fb5b5','#a5c43a','#b07a4f','#f4f1ea','#6b7dff'];
+const QTIME=25, REVEAL_MS=5000, RACE_MS=9000, PREFIX='arnequiz26-';
+const params=new URLSearchParams(location.search);
+const TEST=params.has('test');
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shape=i=>`<svg class="shape"><use href="#sh${i}"/></svg>`;
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const show=id=>document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id===id));
+const rid=n=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZ';let s='';for(let i=0;i<n;i++)s+=a[Math.floor(Math.random()*a.length)];return s};
+
+/* ================= TRANSPORT ================= */
+// Host: listen(code, onConn, onStatus). Conn: {send(obj), onData(fn), onClose(fn)}
+function hostListen(code,onConn,onStatus){
+  if(TEST){
+    const bc=new BroadcastChannel('hq-'+code),conns=new Map();
+    bc.onmessage=e=>{const m=e.data;if(m.to!=='host')return;let c=conns.get(m.from);
+      if(!c){const h={d:()=>{},c:()=>{}};c={send:d=>bc.postMessage({to:m.from,from:'host',data:d}),onData:f=>h.d=f,onClose:f=>h.c=f,_h:h};conns.set(m.from,c);onConn(c)}
+      c._h.d(m.data)};
+    setTimeout(()=>onStatus('ok'),50);return;
+  }
+  if(!window.Peer){onStatus('nolib');return}
+  const peer=new Peer(PREFIX+code,{debug:0});
+  peer.on('open',()=>onStatus('ok'));
+  peer.on('connection',dc=>{
+    const h={d:()=>{},c:()=>{}};
+    const c={send:d=>{try{if(dc.open)dc.send(d)}catch(e){}},onData:f=>h.d=f,onClose:f=>h.c=f};
+    dc.on('open',()=>onConn(c));dc.on('data',d=>h.d(d));dc.on('close',()=>h.c());dc.on('error',()=>h.c());
+  });
+  peer.on('disconnected',()=>{onStatus('reconnecting');setTimeout(()=>{try{peer.reconnect()}catch(e){}},1500)});
+  peer.on('error',e=>{
+    if(e.type==='unavailable-id'){onStatus('taken');peer.destroy();setTimeout(()=>hostListen(code,onConn,onStatus),4000)}
+    else if(e.type==='network'||e.type==='server-error'||e.type==='socket-error'){onStatus('reconnecting')}
+  });
+}
+// Player: connect(code, handlers{data,open,close,status}) -> {send}
+function playerConnect(code,h){
+  if(TEST){
+    const id='p'+rid(6),bc=new BroadcastChannel('hq-'+code);
+    bc.onmessage=e=>{if(e.data.to===id)h.data(e.data.data)};
+    setTimeout(()=>h.open(),30);
+    return {send:d=>bc.postMessage({to:'host',from:id,data:d})};
+  }
+  const api={send:()=>{}};
+  if(!window.Peer){h.status('Fikk ikke lastet tilkoblingen. Sjekk nettet og last inn siden på nytt.');return api}
+  let peer=null,dc=null,tries=0;
+  const start=()=>{
+    if(peer)try{peer.destroy()}catch(e){}
+    peer=new Peer({debug:0});
+    peer.on('open',()=>{
+      dc=peer.connect(PREFIX+code,{serialization:'json',reliable:true});
+      dc.on('open',()=>{tries=0;h.open()});
+      dc.on('data',d=>h.data(d));
+      dc.on('close',()=>{h.close();retry()});
+      dc.on('error',()=>retry());
+    });
+    peer.on('error',e=>{h.status(e.type==='peer-unavailable'?'Fant ikke quizen på TV-en ennå. Prøver igjen …':'Mistet forbindelsen. Prøver igjen …');retry()});
+  };
+  let rt=null;
+  const retry=()=>{if(rt)return;tries++;rt=setTimeout(()=>{rt=null;start()},Math.min(8000,1500*tries))};
+  api.send=d=>{try{if(dc&&dc.open)dc.send(d)}catch(e){}};
+  start();
+  return api;
+}
+
+/* ================= HOST ================= */
+let G=null,hostTick=null,paused=false,netStatus='';
+const conns=new Map(); // pid -> conn
+function newGame(code){return {code:code||rid(4),phase:'lobby',qi:-1,players:[],deadline:0,phaseAt:Date.now()}}
+function saveG(){store.set('hq-host',G)}
+function connected(p){return conns.has(p.pid)}
+
+function startHost(){
+  show('host');
+  G=store.get('hq-host');
+  if(!G||!G.code) G=newGame();
+  if(G.phase==='question'){G.deadline=Date.now()+QTIME*1000}
+  G.phaseAt=Date.now();
+  saveG();
+  hostListen(G.code,onConn,s=>{netStatus=s;renderHost()});
+  clearInterval(hostTick);hostTick=setInterval(tick,250);
+  renderHost();
+}
+function onConn(c){
+  let pid=null;
+  c.onData(m=>{
+    if(!m||typeof m!=='object')return;
+    if(m.t==='join'){
+      const name=String(m.name||'').trim().slice(0,18);
+      const id=String(m.pid||'').slice(0,40);
+      if(!name||!id){c.send({t:'err',msg:'Skriv inn et navn.'});return}
+      let p=G.players.find(x=>x.pid===id);
+      const same=G.players.find(x=>x.name.toLowerCase()===name.toLowerCase());
+      if(same&&same!==p){
+        if(connected(same)){c.send({t:'err',msg:'Navnet «'+name+'» er allerede med. Velg et annet.'});return}
+        if(p) G.players=G.players.filter(x=>x!==p);
+        same.pid=id;p=same; // take over a disconnected seat
+      }
+      if(!p){
+        if(G.players.length>=12){c.send({t:'err',msg:'Quizen er full (12 spillere).'});return}
+        const used=new Set(G.players.map(x=>x.c));
+        p={pid:id,name,c:PAL.find(x=>!used.has(x))||PAL[G.players.length%PAL.length],score:0,ans:null,right:null};
+        G.players.push(p);
+      } else if(G.phase==='lobby') p.name=name;
+      pid=id;conns.set(id,c);saveG();sendTo(p);renderHost();
+    }
+    if(m.t==='ans'&&pid){
+      const p=G.players.find(x=>x.pid===pid);
+      if(!p||G.phase!=='question'||m.qi!==G.qi||p.ans!==null)return;
+      const a=Number(m.a);if(!(a>=0&&a<4))return;
+      p.ans=a;saveG();sendTo(p);renderHost();
+      if(G.players.filter(connected).every(x=>x.ans!==null)) reveal();
+    }
+  });
+  c.onClose(()=>{if(pid&&conns.get(pid)===c){conns.delete(pid);renderHost()}});
+}
+function standing(p){return 1+G.players.filter(x=>x.score>p.score).length}
+function sendTo(p){
+  const c=conns.get(p.pid);if(!c)return;
+  const q=QS[G.qi];
+  const inQ=(G.phase==='question'||G.phase==='reveal')&&q;
+  c.send({t:'st',phase:G.phase,qi:G.qi,total:QS.length,
+    left:G.phase==='question'?Math.max(0,G.deadline-Date.now()):null,
+    q:inQ?{y:q.y,q:q.q,o:q.o}:null,
+    correct:(G.phase==='reveal')?q.a:null,
+    me:{name:p.name,c:p.c,score:p.score,ans:p.ans,right:p.right},
+    rank:standing(p),n:G.players.length});
+}
+function broadcast(){G.players.forEach(sendTo)}
+function setPhase(ph){G.phase=ph;G.phaseAt=Date.now();saveG();broadcast();renderHost()}
+function startQ(i){
+  G.qi=i;G.players.forEach(p=>{p.ans=null;p.right=null});
+  G.deadline=Date.now()+QTIME*1000;setPhase('question');
+}
+function reveal(){
+  if(G.phase!=='question')return;
+  const a=QS[G.qi].a;
+  G.players.forEach(p=>{p.right=p.ans===a;if(p.right)p.score++});
+  setPhase('reveal');
+}
+function next(){
+  if(G.phase==='lobby'){if(G.players.length)startQ(0);return}
+  if(G.phase==='question'){reveal();return}
+  if(G.phase==='reveal'){setPhase('race');return}
+  if(G.phase==='race'){if(G.qi+1<QS.length)startQ(G.qi+1);else setPhase('end');return}
+}
+function tick(){
+  if(!G)return;
+  const now=Date.now();
+  if(G.phase==='question'){
+    if(now>=G.deadline) reveal(); else updTimer();
+  } else if(G.phase==='reveal'&&now-G.phaseAt>=REVEAL_MS) setPhase('race');
+  else if(G.phase==='race'){
+    if(!paused&&now-G.phaseAt>=RACE_MS) next();
+    else updRaceBanner();
+  }
+}
+function updTimer(){
+  const left=Math.max(0,G.deadline-Date.now());
+  const b=$('#tbar'),s=$('#tsec');
+  if(b)b.style.width=(left/(QTIME*1000)*100)+'%';
+  if(s)s.textContent=Math.ceil(left/1000);
+}
+function updRaceBanner(){
+  const el=$('#rbanner');if(!el)return;
+  const last=G.qi+1>=QS.length;
+  const s=Math.max(0,Math.ceil((RACE_MS-(Date.now()-G.phaseAt))/1000));
+  el.textContent=paused?'Pause – trykk Neste når dere er klare':(last?'Kåring av vinneren om '+s+' s':'Neste spørsmål om '+s+' s');
+}
+function renderHost(){
+  if(!G)return;
+  const st=$('#stage');
+  $('#hCode').textContent=netStatus==='ok'?'Kode: '+G.code:netStatus==='nolib'?'Ingen nettforbindelse':netStatus==='taken'?'Venter på kode …':'Kobler til …';
+  $('#tPause').textContent=paused?'Fortsett':'Pause';
+  const chip=$('#hChip');
+  if(G.phase==='lobby'){
+    chip.textContent=G.players.length?G.players.length+' er med':'Venter på spillere';
+    const url=location.origin+location.pathname+'?rom='+G.code+(TEST?'&test=1':'');
+    let qr='';
+    try{if(window.qrcode){const q=qrcode(0,'M');q.addData(url);q.make();qr=q.createSvgTag({cellSize:6,margin:2,scalable:true})}}catch(e){}
+    st.innerHTML=`<div class="lobby">
+      <div class="qrcard"><h2>Skann for å bli med</h2><div class="qr">${qr||'<p>QR-koden kunne ikke lages – bruk lenken under.</p>'}</div>
+        <div class="url">${esc(url)}</div><div class="code">${esc(G.code)}</div></div>
+      <div class="joined"><h2>${G.players.length?'Klare i startfeltet':'Ingen er med ennå'}</h2>
+        <div class="plist">${G.players.map(p=>`<span class="pchip${connected(p)?'':' off'}" style="--c:${p.c}"><i></i>${esc(p.name)}</span>`).join('')}</div>
+        <button type="button" class="gold startbtn" id="startBtn" ${G.players.length?'':'disabled'}>Start quizen</button>
+      </div></div>`;
+    $('#startBtn').onclick=()=>next();
+    return;
+  }
+  chip.textContent=G.phase==='end'?'Ferdig!':'Spørsmål '+(G.qi+1)+' av '+QS.length;
+  if(G.phase==='question'||G.phase==='reveal'){
+    const q=QS[G.qi],rv=G.phase==='reveal';
+    const cnt=[0,0,0,0];G.players.forEach(p=>{if(p.ans!==null)cnt[p.ans]++});
+    const right=G.players.filter(p=>p.right).map(p=>p.name);
+    st.innerHTML=`<div class="qbox${rv?' reveal':''}">
+      <div class="qtop"><span class="year">${esc(q.y)}</span><div class="timer" style="flex:1">${rv?'':'<i id="tbar"></i>'}</div><span class="secs" id="tsec">${rv?'':QTIME}</span></div>
+      <div class="qtext">${esc(q.q)}</div>
+      <div class="opts">${q.o.map((o,i)=>`<div class="opt o${i}${rv?(i===q.a?' yes':' no'):''}">${shape(i)}<span>${esc(o)}</span><span class="cnt">${cnt[i]}</span></div>`).join('')}</div>
+      ${rv?`<div class="rightnames">${right.length?'Riktig: '+right.map(esc).join(', '):'Ingen fikk denne riktig!'}</div>`
+          :`<div class="answ"><span class="lbl">Har svart:</span>${G.players.map(p=>`<span class="pchip${p.ans!==null?' done':''}${connected(p)?'':' off'}" style="--c:${p.c}"><i></i>${esc(p.name)}</span>`).join('')}</div>`}
+    </div>`;
+    if(!rv)updTimer();
+    return;
+  }
+  // race / end
+  const top=Math.max(0,...G.players.map(p=>p.score));
+  let head='';
+  if(G.phase==='end'){
+    const w=G.players.filter(p=>p.score===top).map(p=>p.name);
+    head=`<div class="endwin"><h2>${w.length>1?esc(w.join(' og '))+' vinner!':esc(w[0]||'')+' vinner!'}</h2><p>${top} av ${QS.length} riktige – gratulerer med dagen, Arne!</p></div>`;
+  } else head='<div class="banner" id="rbanner"></div>';
+  st.innerHTML=head+'<div id="lanes"></div>';
+  drawLanes(top);
+  updRaceBanner();
+}
+function drawLanes(top){
+  const box=$('#lanes');
+  box.innerHTML=G.players.map((p,i)=>`<div class="lane${top>0&&p.score===top?' lead':''}${p.score>=QS.length?' done':''}" style="--c:${p.c}" data-pid="${esc(p.pid)}">
+    <div class="who"><b class="no">${standing(p)}</b><span>${esc(p.name)}</span></div>
+    <div class="track"><div class="skier" style="color:${p.c}"><svg><use href="#sk"/></svg></div></div>
+    <b class="sc">${p.score}</b></div>`).join('');
+  requestAnimationFrame(()=>{
+    box.querySelectorAll('.lane').forEach(el=>{
+      const p=G.players.find(x=>x.pid===el.dataset.pid);if(!p)return;
+      const sk=el.querySelector('.skier'),w=sk.offsetWidth;
+      const prev=G.phase==='race'&&p.right?p.score-1:p.score;
+      const pos=v=>`calc((100% - ${w}px - 2%) * ${Math.min(1,v/QS.length)})`;
+      sk.style.transition='none';sk.style.left=pos(prev);void sk.offsetWidth;sk.style.transition='';
+      if(prev!==p.score){
+        setTimeout(()=>{sk.style.left=pos(p.score);sk.classList.add('go');
+          const pp=document.createElement('span');pp.className='pop';pp.textContent='+1';pp.style.left=pos(prev);el.querySelector('.track').appendChild(pp)},350);
+      }
+    });
+  });
+}
+$('#tNext').onclick=()=>next();
+$('#tPause').onclick=()=>{paused=!paused;if(!paused&&G&&G.phase==='race')G.phaseAt=Date.now();renderHost()};
+$('#tFs').onclick=async()=>{try{document.fullscreenElement?await document.exitFullscreen():await document.documentElement.requestFullscreen()}catch(e){}};
+let resetArm=false;
+$('#tReset').onclick=()=>{
+  if(!resetArm){resetArm=true;$('#tReset').textContent='Sikker? Trykk igjen';setTimeout(()=>{resetArm=false;$('#tReset').textContent='Ny quiz'},3000);return}
+  resetArm=false;$('#tReset').textContent='Ny quiz';
+  G.players.forEach(p=>{p.score=0;p.ans=null;p.right=null});G.qi=-1;paused=false;setPhase('lobby');
+};
+document.addEventListener('keydown',e=>{
+  if(!$('#host').classList.contains('on'))return;
+  if(e.target.tagName==='INPUT')return;
+  if(e.key===' '||e.key==='Enter'||e.key==='ArrowRight'){e.preventDefault();next()}
+});
+addEventListener('resize',()=>{if(G&&(G.phase==='race'||G.phase==='end'))renderHost()});
+
+/* ================= PLAYER ================= */
+let P={code:'',name:'',pid:'',joined:false,st:null,link:null,conn:'',err:'',deadline:0};
+let pTick=null;
+function startPlay(code){
+  show('play');
+  const saved=store.get('hq-player')||{};
+  P.pid=TEST?('u'+rid(10)):(saved.pid||('u'+rid(10)));
+  P.code=(code||saved.code||'').toUpperCase();
+  P.name=saved.code===P.code?saved.name||'':'';
+  store.set('hq-player',{pid:P.pid,code:P.code,name:P.name});
+  if(P.code&&P.name) connectPlay(); else renderPlay();
+}
+function connectPlay(){
+  P.conn='Kobler til TV-en …';P.err='';renderPlay();
+  P.link=playerConnect(P.code,{
+    open:()=>{P.conn='';P.link.send({t:'join',pid:P.pid,name:P.name})},
+    data:m=>{
+      if(!m)return;
+      if(m.t==='err'){P.err=m.msg;P.joined=false;P.st=null;renderPlay();return}
+      if(m.t==='st'){P.joined=true;P.err='';P.conn='';const old=P.st;P.st=m;
+        if(m.left!=null)P.deadline=Date.now()+m.left;
+        store.set('hq-player',{pid:P.pid,code:P.code,name:P.name});
+        if(!old||old.phase!==m.phase||old.qi!==m.qi||old.me.ans!==m.me.ans||old.me.score!==m.me.score||old.n!==m.n)renderPlay()}
+    },
+    close:()=>{P.conn='Mistet kontakten med TV-en. Prøver igjen …';renderPlay()},
+    status:s=>{P.conn=s;renderPlay()}
+  });
+}
+function renderPlay(){
+  const b=$('#pbody');
+  if(!P.joined||!P.st){
+    const pre=NAMES.includes(P.name)?P.name:'';
+    b.innerHTML=`<div class="pcard"><h2>Bli med</h2>
+      <label class="l" for="pCode">Kode fra TV-en</label><input type="text" id="pCode" maxlength="4" autocomplete="off" autocapitalize="characters" value="${esc(P.code)}">
+      <label class="l">Hvem er du?</label>
+      <div class="names">${NAMES.map(n=>`<button type="button" data-n="${esc(n)}" class="${n===pre?'sel':''}">${esc(n)}</button>`).join('')}</div>
+      <label class="l" for="pName">Eller skriv navnet ditt</label><input type="text" id="pName" maxlength="18" autocomplete="off" value="${esc(pre?'':P.name)}">
+      <button type="button" class="gold wide" id="pJoin">Bli med</button>
+      <div class="perr">${esc(P.err)}</div></div>
+      <div class="conn${P.conn?' bad':''}">${esc(P.conn)}</div>`;
+    let chosen=pre;
+    b.querySelectorAll('.names button').forEach(x=>x.onclick=()=>{chosen=x.dataset.n;$('#pName').value='';b.querySelectorAll('.names button').forEach(y=>y.classList.toggle('sel',y===x))});
+    $('#pName').oninput=()=>{chosen='';b.querySelectorAll('.names button').forEach(y=>y.classList.remove('sel'))};
+    $('#pJoin').onclick=()=>{
+      const code=$('#pCode').value.trim().toUpperCase(),name=($('#pName').value.trim()||chosen).slice(0,18);
+      if(!/^[A-Z]{4}$/.test(code)){P.err='Koden står på TV-en (fire bokstaver).';renderPlay();return}
+      if(!name){P.err='Velg eller skriv navnet ditt.';renderPlay();return}
+      const changed=code!==P.code;P.code=code;P.name=name;
+      store.set('hq-player',{pid:P.pid,code,name});
+      if(P.link&&!changed){P.link.send({t:'join',pid:P.pid,name});P.err='';P.conn='Kobler til …';renderPlay()}
+      else connectPlay();
+    };
+    return;
+  }
+  const s=P.st,me=s.me;
+  const top=`<div class="ptop"><span class="me" style="--c:${me.c}"><i></i>${esc(me.name)}</span><span>${me.score} poeng</span></div>`;
+  const conn=`<div class="conn${P.conn?' bad':''}">${esc(P.conn)}</div>`;
+  const skier=`<svg class="bigsk" style="color:${me.c}"><use href="#sk"/></svg>`;
+  clearInterval(pTick);
+  if(s.phase==='lobby'){
+    b.innerHTML=top+`<div class="center">${skier}<div class="big">Du er med!</div><p>Se på TV-en. Quizen starter snart.</p></div>`+conn;return;
+  }
+  if(s.phase==='question'&&s.q){
+    if(me.ans===null){
+      b.innerHTML=top+`<div class="pmeta"><span>Spørsmål ${s.qi+1} av ${s.total}</span><b id="pSec"></b></div>
+        <div class="pq">${esc(s.q.q)}</div>
+        <div class="abtns">${s.q.o.map((o,i)=>`<button type="button" class="o${i}" data-a="${i}">${shape(i)}<span>${esc(o)}</span></button>`).join('')}</div>`+conn;
+      b.querySelectorAll('.abtns button').forEach(x=>x.onclick=()=>{
+        if(P.st.me.ans!==null)return;
+        P.link.send({t:'ans',qi:s.qi,a:Number(x.dataset.a)});
+        P.st={...P.st,me:{...P.st.me,ans:Number(x.dataset.a)}};renderPlay();
+      });
+    } else {
+      b.innerHTML=top+`<div class="center"><div class="res none" style="display:flex;flex-direction:column;align-items:center;gap:8px"><div class="o${me.ans}" style="width:72px;height:72px;border-radius:18px;display:grid;place-items:center;font-size:40px">${shape(me.ans)}</div><div class="big">Svaret er låst</div><p>Vent på de andre …</p></div><b id="pSec" class="bung" style="color:var(--gold);font-size:28px"></b></div>`+conn;
+    }
+    const upd=()=>{const el=$('#pSec');if(el)el.textContent=Math.max(0,Math.ceil((P.deadline-Date.now())/1000))+' s'};
+    upd();pTick=setInterval(upd,300);
+    return;
+  }
+  if(s.phase==='reveal'&&s.q){
+    const cls=me.ans===null?'none':me.right?'ok':'bad';
+    const msg=me.ans===null?'Du rakk ikke å svare':me.right?'Riktig! +1':'Feil';
+    b.innerHTML=top+`<div class="center"><div class="res ${cls}"><div class="big">${msg}</div><p style="margin:10px auto 0;color:#fff">Riktig svar: <b>${esc(s.q.o[s.correct])}</b></p></div></div>`+conn;return;
+  }
+  if(s.phase==='race'){
+    b.innerHTML=top+`<div class="center">${skier}<div class="big">Plass ${s.rank}</div><p>Du har ${me.score} poeng etter ${s.qi+1} av ${s.total} spørsmål. Følg skirennet på TV-en!</p></div>`+conn;return;
+  }
+  if(s.phase==='end'){
+    b.innerHTML=top+`<div class="center">${skier}<div class="big">${s.rank===1?'Du vant!':'Plass '+s.rank}</div><p>${me.score} av ${s.total} riktige. Takk for at du var med!</p></div>`+conn;return;
+  }
+  b.innerHTML=top+`<div class="center"><p>Venter på TV-en …</p></div>`+conn;
+}
+
+/* ================= ROUTING ================= */
+$('#goHost').onclick=()=>startHost();
+$('#goPlay').onclick=()=>startPlay('');
+const room=params.get('rom');
+if(room) startPlay(room);
+else if(params.has('tv')) startHost();
+else show('land');
+}
+</script>
+</body>
+</html>
